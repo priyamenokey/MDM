@@ -1,0 +1,7 @@
+pandas
+rapidfuzz
+neo4j
+python-dotenv
+networkx
+streamlit
+openai

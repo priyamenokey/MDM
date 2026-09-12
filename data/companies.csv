@@ -1,0 +1,8 @@
+record_id,source,name,address,country
+1,CRM,Johnson & Johnson,New Brunswick NJ,USA
+2,SAP,J&J,New Brunswick NJ,USA
+3,Vendor,Johnson and Johnson Inc.,New Brunswick New Jersey,USA
+4,Legacy,J and J,New Brunswick NJ,USA
+5,CRM,Pfizer Inc,New York NY,USA
+6,SAP,Pfizer Incorporated,New York NY,USA
+7,Vendor,Moderna Inc,Cambridge MA,USA
