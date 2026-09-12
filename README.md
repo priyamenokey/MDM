@@ -13,10 +13,10 @@ The core idea is:
 
 ```mermaid
 flowchart TD
-    A[Natural-language question\n"What applications are associated with J&J?"] --> B[LLM / intent extraction]
-    B --> C[Entity extraction\nJ&J]
+    A["Natural-language question<br/>What applications are associated with J&J?"] --> B[LLM / intent extraction]
+    B --> C["Entity extraction<br/>J&J"]
     C --> D[Entity Resolution]
-    D --> E[GoldenEntity\nGE-001 -> Johnson & Johnson]
+    D --> E["GoldenEntity<br/>GE-001 -> Johnson & Johnson"]
     E --> F[Neo4j Knowledge Graph]
     F --> G[Drug / Application relationships]
     G --> H[Answer in natural language]
