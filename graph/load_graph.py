@@ -53,22 +53,22 @@ def create_demo_business_objects(golden_entity):
     try:
         query = """
         MATCH (g:GoldenEntity {id: $golden_id})
-        MERGE (d:Drug {id: $drug_id})
-        SET d.name = $drug_name
-        MERGE (a:Application {id: $application_id})
-        SET a.name = $application_name
-        MERGE (g)-[:MANUFACTURES]->(d)
-        MERGE (a)-[:CONCERNS]->(d)
+        MERGE (i:Item {id: $item_id})
+        SET i.name = $item_name
+        MERGE (c:CaseRecord {id: $case_id})
+        SET c.name = $case_name
+        MERGE (g)-[:MANUFACTURES]->(i)
+        MERGE (c)-[:CONCERNS]->(i)
         """
 
         suffix = golden_entity["golden_id"].split("-")[-1]
         driver.execute_query(
             query,
             golden_id=golden_entity["golden_id"],
-            drug_id=f"DRUG-{suffix}",
-            drug_name=f"Sample Drug {suffix}",
-            application_id=f"APP-{suffix}0",
-            application_name=f"Application {suffix}0",
+            item_id=f"ITEM-{suffix}",
+            item_name=f"Sample Item {suffix}",
+            case_id=f"CASE-{suffix}0",
+            case_name=f"Case {suffix}0",
             database_="neo4j",
         )
     finally:

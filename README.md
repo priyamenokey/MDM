@@ -1,24 +1,24 @@
 # ER + Knowledge Graph POC
 
-This project demonstrates a simple end-to-end workflow for entity resolution (ER) and knowledge-graph querying using company and facility records.
+This project demonstrates a simple end-to-end workflow for entity resolution (ER) and knowledge-graph querying using entity and record data.
 
 The core idea is:
 
-- normalize messy source names such as `J&J`, `J and J`, and `Johnson and Johnson Inc.`
+- normalize messy source names such as `Entity-A`, `Entity A`, and `Entity A Inc.`
 - resolve them to a canonical golden entity
 - store the canonical entity and source records in Neo4j
-- query the graph for related drugs and applications
+- query the graph for related records and mapped items
 
 ## Workflow overview
 
 ```mermaid
 flowchart TD
-    A["Natural-language question<br/>What applications are associated with J&J?"] --> B[LLM / intent extraction]
-    B --> C["Entity extraction<br/>J&J"]
+    A["Natural-language question<br/>What records are associated with Entity A?"] --> B[LLM / intent extraction]
+    B --> C["Entity extraction<br/>Entity A"]
     C --> D[Entity Resolution]
-    D --> E["GoldenEntity<br/>GE-001 -> Johnson & Johnson"]
+    D --> E["GoldenEntity<br/>GE-001 -> Entity A"]
     E --> F[Neo4j Knowledge Graph]
-    F --> G[Drug / Application relationships]
+    F --> G[Record / item relationships]
     G --> H[Answer in natural language]
 
     subgraph ER[Entity Resolution Layer]
@@ -33,8 +33,8 @@ flowchart TD
 
     subgraph KG[Knowledge Graph Layer]
         K1[SourceRecord -> RESOLVES_TO -> GoldenEntity]
-        K2[GoldenEntity -> MANUFACTURES -> Drug]
-        K3[Application -> CONCERNS -> Drug]
+        K2[GoldenEntity -> PRODUCES -> Item]
+        K3[CaseRecord -> CONCERNS -> Item]
     end
 
     E --> K1
@@ -85,7 +85,7 @@ er-knowledge-graph/
 
 ## Sample data model
 
-The sample data in `data/companies.csv` is a company/facility dataset and includes:
+The sample data in `data/companies.csv` is an entity/record dataset and includes:
 
 - `record_id`
 - `source`
@@ -98,13 +98,13 @@ The sample data in `data/companies.csv` is a company/facility dataset and includ
 
 Example records include variations such as:
 
-- `Johnson & Johnson`
-- `J&J`
-- `Johnson and Johnson Inc.`
-- `J and J`
-- `Pfizer Inc`
-- `Pfizer Incorporated`
-- `Moderna Inc`
+- `Entity A`
+- `Entity-A`
+- `Entity A Inc.`
+- `Entity A Incorporated`
+- `Entity B Inc`
+- `Entity B Incorporated`
+- `Entity C Inc`
 
 These records are intentionally noisy to show how entity resolution works in practice.
 
@@ -117,11 +117,11 @@ Example:
 ```python
 from er.normalize import normalize_company_name
 
-print(normalize_company_name("Johnson & Johnson Inc."))
-# johnson and johnson
+print(normalize_company_name("Entity A Inc."))
+# entity a
 
-print(normalize_company_name("J&J"))
-# johnson and johnson
+print(normalize_company_name("Entity-A"))
+# entity a
 ```
 
 This step reduces naming noise before matching.
@@ -130,7 +130,7 @@ This step reduces naming noise before matching.
 
 `er/matcher.py` uses `RapidFuzz` to compare:
 
-- company name
+- entity name
 - address
 - country
 
@@ -195,8 +195,8 @@ It creates relationships such as:
 
 ```cypher
 (:SourceRecord)-[:RESOLVES_TO]->(:GoldenEntity)
-(:GoldenEntity)-[:MANUFACTURES]->(:Drug)
-(:Application)-[:CONCERNS]->(:Drug)
+(:GoldenEntity)-[:PRODUCES]->(:Item)
+(:CaseRecord)-[:CONCERNS]->(:Item)
 ```
 
 This gives the graph a clean canonical model while still preserving the source-of-truth records that fed the resolution process.
@@ -204,10 +204,10 @@ This gives the graph a clean canonical model while still preserving the source-o
 ## Example graph structure
 
 ```text
-SourceRecord: J&J
-    └── RESOLVES_TO ──> GoldenEntity: Johnson & Johnson
-                             └── MANUFACTURES ──> Drug: Sample Drug 1
-                                                        └── CONCERNS ──> Application: APP-100
+SourceRecord: Entity-A
+    └── RESOLVES_TO ──> GoldenEntity: Entity A
+                             └── PRODUCES ──> Item: Sample Item 1
+                                                       └── CONCERNS ──> CaseRecord: CASE-100
 ```
 
 ## Stage 6: Query the graph
@@ -216,18 +216,18 @@ The project includes an agent-style query layer in `agent/query_graph.py`.
 
 The user flow is:
 
-1. Extract entity from question: `J&J`
+1. Extract entity from question: `Entity A`
 2. Resolve alias to canonical entity: `GE-001`
-3. Query Neo4j for related applications
+3. Query Neo4j for related records
 4. Return answer in natural language
 
 Example Cypher pattern:
 
 ```cypher
 MATCH (r:SourceRecord)-[:RESOLVES_TO]->(g:GoldenEntity)
-WHERE toLower(r.name) = toLower($company_name)
-OPTIONAL MATCH (g)-[:MANUFACTURES]->(d:Drug)<-[:CONCERNS]-(a:Application)
-RETURN DISTINCT g.name AS golden_name, d.name AS drug_name, a.id AS application_id;
+WHERE toLower(r.name) = toLower($entity_name)
+OPTIONAL MATCH (g)-[:PRODUCES]->(i:Item)<-[:CONCERNS]-(c:CaseRecord)
+RETURN DISTINCT g.name AS golden_name, i.name AS item_name, c.id AS record_id;
 ```
 
 ## Setup
@@ -257,7 +257,7 @@ python main.py
 
 This will:
 
-- read the sample company and facility records
+- read the sample entity and record data
 - resolve duplicates into golden entities
 - print matches and clusters
 - attempt to load the graph into Neo4j if credentials are configured
@@ -281,8 +281,8 @@ That keeps the system deterministic and makes the graph a trustworthy source of 
 
 Possible next improvements:
 
-- add a more robust alias table for company registrants and facilities
-- include facility-level records and site relationships
+- add a more robust alias table for entity names and variants
+- include variant-level records and relationship structures
 - add a real LLM wrapper for natural-language questions
-- replace the demo data with actual submissions or product datasets
+- replace the demo data with actual datasets
 - scale the ER layer with Spark or Databricks-based clustering

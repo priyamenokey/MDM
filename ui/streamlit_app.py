@@ -24,16 +24,16 @@ st.title("ER Knowledge Graph — Ask a question")
 
 st.markdown(
     """
-    Ask a natural-language question about a company or facility, for example:
-    `What applications are related to J&J?` or `Show me Pfizer records.`
-    The app resolves the company name and queries the Neo4j knowledge graph.
+    Ask a natural-language question about an entity or item, for example:
+    `What records are related to Entity A?` or `Show me Entity B records.`
+    The app resolves the entity name and queries the Neo4j knowledge graph.
     """
 )
 
 question = st.text_input(
     "Question",
     value="",
-    placeholder="Example: What applications are related to Johnson & Johnson?",
+    placeholder="Example: What records are related to Entity A?",
 )
 
 if st.button("Ask"):
@@ -44,9 +44,9 @@ if st.button("Ask"):
             try:
                 result = answer_question(question)
                 rows = result.get("results", []) or []
-                company_name = result.get("company_name")
+                entity_name = result.get("entity_name")
 
-                if company_name:
+                if entity_name:
                     st.success(result["answer"])
                 else:
                     st.info(result["answer"])
@@ -55,18 +55,18 @@ if st.button("Ask"):
                     normalized_rows = []
                     for row in rows:
                         if isinstance(row, dict):
-                            if "manufacturer" in row:
+                            if "entity" in row:
                                 normalized_rows.append({
-                                    "manufacturer": row.get("manufacturer"),
+                                    "entity": row.get("entity"),
                                 })
                             else:
                                 normalized_rows.append({
-                                    "company": row.get("golden_name") or row.get("company_name") or company_name,
-                                    "drug": row.get("drug_name"),
-                                    "application_id": row.get("application_id"),
+                                    "entity": row.get("golden_name") or row.get("entity_name") or entity_name,
+                                    "item": row.get("item_name"),
+                                    "record_id": row.get("record_id"),
                                 })
 
-                    if normalized_rows:
+                if normalized_rows:
                         st.table(normalized_rows)
                 else:
                     st.info("No matching results were found.")
