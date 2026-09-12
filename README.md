@@ -1,6 +1,6 @@
 # ER + Knowledge Graph POC
 
-This project demonstrates a simple end-to-end workflow for entity resolution (ER) and knowledge-graph querying using FDA-style company/facility records.
+This project demonstrates a simple end-to-end workflow for entity resolution (ER) and knowledge-graph querying using company and facility records.
 
 The core idea is:
 
@@ -85,7 +85,7 @@ er-knowledge-graph/
 
 ## Sample data model
 
-The sample data in `data/companies.csv` is FDA-style and includes:
+The sample data in `data/companies.csv` is a company/facility dataset and includes:
 
 - `record_id`
 - `source`
@@ -257,7 +257,7 @@ python main.py
 
 This will:
 
-- read the sample FDA-style records
+- read the sample company and facility records
 - resolve duplicates into golden entities
 - print matches and clusters
 - attempt to load the graph into Neo4j if credentials are configured
@@ -281,8 +281,8 @@ That keeps the system deterministic and makes the graph a trustworthy source of 
 
 Possible next improvements:
 
-- add a more robust alias table for FDA registrants and facilities
+- add a more robust alias table for company registrants and facilities
 - include facility-level records and site relationships
 - add a real LLM wrapper for natural-language questions
-- replace the demo data with actual FDA submissions or product datasets
+- replace the demo data with actual submissions or product datasets
 - scale the ER layer with Spark or Databricks-based clustering

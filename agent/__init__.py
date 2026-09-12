@@ -1,1 +1,1 @@
-from .query_graph import answer_question, extract_company_name, query_fda_applications_for_company
+from .query_graph import answer_question, extract_company_name, query_applications_for_company

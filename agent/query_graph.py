@@ -132,7 +132,7 @@ def query_company_for_product(product_name):
         driver.close()
 
 
-def query_fda_applications_for_company(company_name):
+def query_applications_for_company(company_name):
     company_name = (company_name or "").strip()
     if not company_name:
         return []
@@ -258,7 +258,7 @@ def answer_question(question):
             "answer": "I couldn't detect a company or facility name in your question. Please enter a company name such as 'J&J' or 'Johnson & Johnson'.",
         }
 
-    rows = query_fda_applications_for_company(company_name)
+    rows = query_applications_for_company(company_name)
     return {
         "company_name": company_name,
         "results": rows,
