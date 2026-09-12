@@ -1,0 +1,27 @@
+graph LR
+    A["👤 User Question<br/>'What records relate<br/>to Entity A?'"]
+    
+    B["🤖 LLM Intent<br/>Extraction<br/>(GPT-4o-mini)"]
+    
+    C["← Intent<br/>entity_records<br/>+ entity='Entity A'"]
+    
+    D["🔀 Route to<br/>Cypher Query"]
+    
+    E["<b>MATCH (r:SourceRecord)<br/>-[:RESOLVES_TO]-><br/>(g:GoldenEntity)<br/>WHERE g.name = $entity<br/>RETURN r, g, i, c</b>"]
+    
+    F["⚡ Neo4j Execution<br/>(milliseconds)"]
+    
+    G["Trace Graph Path:<br/>SourceRecord →<br/>GoldenEntity →<br/>Item → CaseRecord"]
+    
+    H["📋 Structured Results<br/>+ Full Lineage"]
+    
+    I["✅ Display to User<br/>with Audit Trail"]
+    
+    A --> B --> C --> D --> E --> F --> G --> H --> I
+    
+    style B fill:#f3e5f5
+    style C fill:#e8f5e9
+    style D fill:#fff3e0
+    style F fill:#e1f5ff
+    style G fill:#fce4ec
+    style I fill:#f1f8e9

@@ -1,0 +1,41 @@
+graph TB
+    A["📊 Messy Source Data<br/>(1000 records, duplicates)"]
+    
+    B["<b>Layer 1: Entity Resolution Engine</b><br/>Python Deterministic Pipeline"]
+    C["Normalize<br/>(regex, aliases)"]
+    D["Score Pairs<br/>(RapidFuzz)"]
+    E["Cluster<br/>(NetworkX)"]
+    F["Canonicalize<br/>(golden entities)"]
+    
+    G["<b>Layer 2: Neo4j Knowledge Graph</b><br/>Auditable Graph Storage"]
+    H["SourceRecord<br/>nodes"]
+    I["GoldenEntity<br/>nodes"]
+    J["Item &<br/>CaseRecord"]
+    K["RESOLVES_TO<br/>relationships"]
+    
+    L["<b>Layer 3: Query Layer</b><br/>LLM + Cypher"]
+    M["NL Intent<br/>Extraction"]
+    N["Cypher<br/>Routing"]
+    O["Results<br/>+ Lineage"]
+    
+    P["👤 User Questions"]
+    Q["250 Golden Entities<br/>→ Items → Cases"]
+    
+    A --> B
+    B --> C --> D --> E --> F --> Q
+    
+    Q --> G
+    Q --> H
+    H -.->|RESOLVES_TO| I
+    I -.->|PRODUCES| J
+    J -.->|CONCERNS| K
+    
+    P --> L
+    L --> M --> N --> O
+    O -.->|queries| I
+    O -.->|traces| H
+    
+    style B fill:#e1f5ff
+    style G fill:#fff3e0
+    style L fill:#f3e5f5
+    style Q fill:#c8e6c9
